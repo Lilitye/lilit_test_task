@@ -13,7 +13,7 @@ class GetCompanyDataService
 {
     use CacheConfigTrait;
 
-    const RESULT_KEYS = ["date", "open", "high", "low", "close", "volume"];
+    const HISTORICAL_DATA_KEYS = ["date", "open", "high", "low", "close", "volume"];
 
     public function __construct(private GetCompanyService $getCompanyService,
                                 private HttpClientInterface $client)
@@ -81,7 +81,7 @@ class GetCompanyDataService
 
         return array_map(function($item) {
             $retItem = [];
-            foreach (self::RESULT_KEYS as $key) {
+            foreach (self::HISTORICAL_DATA_KEYS as $key) {
                 $retItem[$key] = $item[$key] ?? "";
 
                 if($key === 'date') {

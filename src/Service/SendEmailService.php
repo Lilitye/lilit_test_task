@@ -29,13 +29,13 @@ class SendEmailService
     {
         $headers = array_map(function ($key) {
             return ucfirst($key);
-        }, GetCompanyDataService::RESULT_KEYS);
+        }, GetCompanyDataService::HISTORICAL_DATA_KEYS);
 
         $csvData = implode(",", $headers)."\n";
 
         foreach ($data as $row) {
             $rowArr = [];
-            foreach (GetCompanyDataService::RESULT_KEYS as $key) {
+            foreach (GetCompanyDataService::HISTORICAL_DATA_KEYS as $key) {
                 $rowArr[] = $row[$key];
             }
             $csvData .= implode(",", $rowArr)."\n";
