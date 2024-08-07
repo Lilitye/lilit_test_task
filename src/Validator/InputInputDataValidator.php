@@ -3,23 +3,29 @@
 namespace App\Validator;
 
 use App\Exception\InputDataNotValidException;
-use App\Service\GetCompanyService;
+use App\Service\CompanyService;
+use DateTime;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class InputInputDataValidator implements InputDataValidatorInterface
+readonly class InputInputDataValidator implements InputDataValidatorInterface
 {
     public function __construct(private ValidatorInterface $validator,
-                                private GetCompanyService $getCompanyService)
+                                private CompanyService     $getCompanyService)
     {
     }
 
-    public function validate(mixed $value)
+    /**
+     * @throws InputDataNotValidException
+     * @throws InvalidArgumentException
+     */
+    public function validate(mixed $value): void
     {
         $companySymbols = $this->getCompanyService->getAllCompanySymbols();
 
-        $currDate = (new \DateTime())->format("Y-m-d");
+        $currDate = (new DateTime())->format("Y-m-d");
 
         $constraints = new Assert\Collection([
             'fields' => [

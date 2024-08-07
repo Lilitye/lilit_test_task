@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Exception\InputDataNotValidException;
 use App\Logger\LoggerService;
-use App\Service\GetCompanyDataService;
+use App\Service\CompanyHistoricalDataService;
 use App\Service\SendEmailService;
 use App\Validator\InputDataValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,16 +13,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Throwable;
 
-class GetCompanyDataController
+readonly class CompanyDataController
 {
-    public function __construct(private GetCompanyDataService $getCompanyDataService,
-                                private InputDataValidatorInterface $inputDataValidator,
-                                private SendEmailService $sendEmailService,
-                                private LoggerService $loggerService)
+    public function __construct(private CompanyHistoricalDataService $companyHistoricalDataService,
+                                private InputDataValidatorInterface  $inputDataValidator,
+                                private SendEmailService             $sendEmailService,
+                                private LoggerService                $loggerService)
     {
     }
 
-    #[Route('/api/get_historical_data', methods: ['POST'])]
+    #[Route('/get_historical_data', methods: ['POST'])]
     public function getCompanyHistoricalData(Request $request): JsonResponse
     {
         try {
@@ -30,7 +30,7 @@ class GetCompanyDataController
 
             $this->inputDataValidator->validate($requestParams);
 
-            $historicalData = $this->getCompanyDataService->getCompanyHistoricalData($requestParams);
+            $historicalData = $this->companyHistoricalDataService->getHistoricalData($requestParams);
 
             $this->sendEmailService->sendEmail($requestParams, $historicalData);
 

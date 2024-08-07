@@ -2,9 +2,7 @@
 
 namespace App\Service;
 
-use App\Kernel;
-
-trait CacheConfigTrait
+class CacheConfigService
 {
     const CACHE_NAMESPACE_COMPANIES = 'Companies';
     const CACHE_NAMESPACE_COMPANY_SYMBOL_HISTORICAL_DATA = 'Company_Symbol_Historical_Data';

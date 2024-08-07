@@ -3,17 +3,22 @@
 namespace App\Service;
 
 use App\Email\MailerService;
+use RuntimeException;
 
-class SendEmailService
+readonly class SendEmailService
 {
-    public function __construct(private MailerService $mailerService,
-                                private GetCompanyService $getCompanyService)
+    public function __construct(private MailerService  $mailerService,
+                                private CompanyService $companyService)
     {
     }
 
-    public function sendEmail(array $requestParams, array $historicalData)
+    public function sendEmail(array $requestParams, array $historicalData): void
     {
-        $companyData = $this->getCompanyService->getCompanyBySymbol($requestParams["companySymbol"]);
+        if(empty($_ENV["EMAIL_FROM"])) {
+            throw new RuntimeException('Environment variable EMAIL_FROM missing');
+        }
+
+        $companyData = $this->companyService->getCompanyBySymbol($requestParams["companySymbol"]);
         $subject = $companyData["Company Name"] ?? '';
         $body = "From {$requestParams['startDate']} to {$requestParams['endDate']}";
         $attachments = [[
@@ -29,13 +34,13 @@ class SendEmailService
     {
         $headers = array_map(function ($key) {
             return ucfirst($key);
-        }, GetCompanyDataService::HISTORICAL_DATA_KEYS);
+        }, CompanyHistoricalDataService::HISTORICAL_DATA_KEYS);
 
         $csvData = implode(",", $headers)."\n";
 
         foreach ($data as $row) {
             $rowArr = [];
-            foreach (GetCompanyDataService::HISTORICAL_DATA_KEYS as $key) {
+            foreach (CompanyHistoricalDataService::HISTORICAL_DATA_KEYS as $key) {
                 $rowArr[] = $row[$key];
             }
             $csvData .= implode(",", $rowArr)."\n";

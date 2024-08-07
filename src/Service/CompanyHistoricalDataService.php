@@ -5,57 +5,59 @@ namespace App\Service;
 use DateTime;
 use Exception;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class GetCompanyDataService
+readonly class CompanyHistoricalDataService
 {
-    use CacheConfigTrait;
-
     const HISTORICAL_DATA_KEYS = ["date", "open", "high", "low", "close", "volume"];
 
-    public function __construct(private GetCompanyService $getCompanyService,
-                                private HttpClientInterface $client)
+    public function __construct(private HttpClientInterface $client)
     {
     }
 
-    public function getCompanyHistoricalData(array $requestParams) :array
+    public function getHistoricalData(array $requestParams) :array
     {
         $historicalData = $this->getCompanySymbolAllHistoricalData($requestParams["companySymbol"]);
-        $historicalDataInRange = $this->filterDataByRange($historicalData, $requestParams["startDate"], $requestParams["endDate"]);
 
-        return $historicalDataInRange;
+        return $this->filterDataByRange($historicalData, $requestParams["startDate"], $requestParams["endDate"]);
     }
 
     private function getCompanySymbolAllHistoricalData(string $companySymbol) :array
     {
-        $cache = new FilesystemAdapter(GetCompanyService::CACHE_NAMESPACE_COMPANY_SYMBOL_HISTORICAL_DATA, 0, self::getRequestCachePath());
+        $cache = new FilesystemAdapter(CacheConfigService::CACHE_NAMESPACE_COMPANY_SYMBOL_HISTORICAL_DATA, 0, CacheConfigService::getRequestCachePath());
 
         $companyHistoricalData = $cache->get("symbol_$companySymbol", function (ItemInterface $item) use($companySymbol) {
             $cacheLifetime = $_ENV["COMPANY_SYMBOL_HISTORICAL_DATA_CACHED_LIFETIME"] ?? 86400;
             $item->expiresAfter(intval($cacheLifetime));
 
-            return $this->requestRapidapi($companySymbol);
+            return $this->requestRapidApi($companySymbol);
         });
 
         return $companyHistoricalData;
     }
 
-    private function requestRapidapi(string $companySymbol) :array
+    private function requestRapidApi(string $companySymbol) :array
     {
-        $host = $_ENV["X_RAPIDAPI_HOST"];
-        $apiKey = $_ENV["X_RAPIDAPI_KEY"];
+        if (empty($_ENV["X_RAPID_API_HOST"])) {
+            throw new RuntimeException('Environment variable X_RAPID_API_HOST missing');
+        }
+        if (empty($_ENV["X_RAPID_API_KEY"])) {
+            throw new RuntimeException('Environment variable X_RAPID_API_KEY missing');
+        }
+        if (empty($_ENV["X_RAPID_API_HISTORICAL_DATA_URL"])) {
+            throw new RuntimeException('Environment variable X_RAPID_API_HISTORICAL_DATA_URL missing');
+        }
 
-        $apiURL = "https://{$host}/{$_ENV["X_RAPIDAPI_HISTORICAL_DATA"]}";
-
-        $response = $this->client->request('GET', $apiURL, [
+        $response = $this->client->request('GET', $_ENV["X_RAPID_API_HISTORICAL_DATA_URL"], [
             'query' => [
                 'symbol' => $companySymbol
             ],
             'headers' => [
-                'X-RapidAPI-Key' => $apiKey,
-                'X-RapidAPI-Host' => $host,
+                'X-RapidAPI-Key' => $_ENV["X_RAPID_API_KEY"],
+                'X-RapidAPI-Host' => $_ENV["X_RAPID_API_HOST"],
             ],
         ]);
 
