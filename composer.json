@@ -7,6 +7,9 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "friendsofsymfony/rest-bundle": "*",
+        "nelmio/api-doc-bundle": "^4.29",
+        "symfony/asset": "7.1.*",
         "symfony/console": "7.1.*",
         "symfony/dotenv": "7.1.*",
         "symfony/flex": "^2",
@@ -16,8 +19,10 @@
         "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "7.1.*",
         "symfony/sendgrid-mailer": "7.1.*",
+        "symfony/twig-bundle": "7.1.*",
         "symfony/validator": "7.1.*",
-        "symfony/yaml": "7.1.*"
+        "symfony/yaml": "7.1.*",
+        "zircote/swagger-php": "*"
     },
     "config": {
         "allow-plugins": {
@@ -69,6 +74,7 @@
         }
     },
     "require-dev": {
+        "phpunit/phpunit": "*",
         "symfony/maker-bundle": "^1.60"
     }
 }
