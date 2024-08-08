@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use App\Service\CompanyService;
 use App\Validator\InputDataValidator;
 use App\Exception\InputDataNotValidException;
@@ -27,8 +28,11 @@ class InputDataValidatorTest extends TestCase
         $this->companyService->method('getAllCompanySymbols')
             ->willReturn($companySymbols);
 
+        $violations = $this->createMock(ConstraintViolationList::class);
+        $violations->method('count')->willReturn(0);
+
         $this->validator->method('validate')
-            ->willReturn([]);
+            ->willReturn($violations);
 
         $data = [
             'companySymbol' => 'GOOG',
@@ -50,8 +54,9 @@ class InputDataValidatorTest extends TestCase
 
         $violation = $this->createMock(ConstraintViolation::class);
         $violation->method('getMessage')
-            ->willReturn('Invalid start date');
-        $violations = [$violation];
+            ->willReturn("'startDate' should be a valid date");
+
+        $violations = new ConstraintViolationList([$violation]);
 
         $this->validator->method('validate')
             ->willReturn($violations);

@@ -19,6 +19,7 @@ readonly class SendEmailService
         }
 
         $companyData = $this->companyService->getCompanyBySymbol($requestParams["companySymbol"]);
+
         $subject = $companyData["Company Name"] ?? '';
         $body = "From {$requestParams['startDate']} to {$requestParams['endDate']}";
         $attachments = [[

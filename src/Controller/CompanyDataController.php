@@ -122,8 +122,7 @@ readonly class CompanyDataController
 
             return new JsonResponse([
                 'status' => true,
-               // 'error' => "Internal Error",
-                'error' => $exception->getMessage()
+                'error' => "Internal Error",
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

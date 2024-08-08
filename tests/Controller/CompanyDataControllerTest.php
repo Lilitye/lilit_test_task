@@ -15,7 +15,6 @@ class CompanyDataControllerTest extends TestCase
 {
     private $companyHistoricalDataService;
     private $inputDataValidator;
-    private $companyService;
     private $sendEmailService;
     private $loggerService;
     private $controller;
@@ -23,7 +22,6 @@ class CompanyDataControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->companyHistoricalDataService = $this->createMock(CompanyHistoricalDataService::class);
-        $this->companyService = $this->createMock(CompanyService::class);
         $this->inputDataValidator = $this->createMock(InputDataValidator::class);
         $this->sendEmailService = $this->createMock(SendEmailService::class);
         $this->loggerService = $this->createMock(LoggerService::class);
@@ -89,14 +87,15 @@ class CompanyDataControllerTest extends TestCase
             'email' => 'not valid email'
         ];
 
-        $request = new Request([], $requestParams);
+        $request = new Request($requestParams);
+
         $errors = [
             "\"not valid email\" is not a valid email address"
         ];
 
         $this->inputDataValidator->expects($this->once())
             ->method('validate')
-            ->with($requestParams)
+            ->with($request->query->all())
             ->willThrowException(new InputDataNotValidException($errors));
 
         $response = $this->controller->getCompanyHistoricalData($request);
@@ -118,15 +117,15 @@ class CompanyDataControllerTest extends TestCase
             'email' => 'test@test.com'
         ];
 
-        $request = new Request([], $requestParams);
+        $request = new Request($requestParams);
 
         $this->inputDataValidator->expects($this->once())
             ->method('validate')
-            ->with($requestParams);
+            ->with($request->query->all());
 
         $this->companyHistoricalDataService->expects($this->once())
             ->method('getHistoricalData')
-            ->with($requestParams)
+            ->with($request->query->all())
             ->willThrowException(new \RuntimeException('Some error'));
 
         $this->loggerService->expects($this->once())
