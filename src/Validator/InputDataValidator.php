@@ -3,16 +3,16 @@
 namespace App\Validator;
 
 use App\Exception\InputDataNotValidException;
-use App\Service\CompanyService;
+use App\Service\Company\CompanyServiceInterface;
 use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-readonly class InputDataValidator
+readonly class InputDataValidator implements InputDataValidatorInterface
 {
     public function __construct(private ValidatorInterface $validator,
-                                private CompanyService     $companyService)
+                                private CompanyServiceInterface  $companyService)
     {
     }
 

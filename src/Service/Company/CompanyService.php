@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Company;
 
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use App\Service\CacheConfigService;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 
-class CompanyService
+class CompanyService implements CompanyServiceInterface
 {
     private static array $allCompanies = [];
 
@@ -56,6 +57,13 @@ class CompanyService
         }
 
         return $company;
+    }
+
+    public function getCompanyNameBySymbol(string $companySymbol) :string
+    {
+        $company = $this->getCompanyBySymbol($companySymbol);
+
+        return $company["Company Name"] ?? "";
     }
 
 }

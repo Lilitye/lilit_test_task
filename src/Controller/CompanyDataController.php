@@ -5,20 +5,20 @@ namespace App\Controller;
 use App\Exception\InputDataNotValidException;
 use App\Logger\LoggerService;
 use App\Service\CompanyHistoricalDataService;
-use App\Service\SendEmailService;
-use App\Validator\InputDataValidator;
+use App\Service\SendMail\SendMailServiceInterface;
+use App\Validator\InputDataValidatorInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Throwable;
-use OpenApi\Attributes as OA;
 
 readonly class CompanyDataController
 {
     public function __construct(private CompanyHistoricalDataService $companyHistoricalDataService,
-                                private InputDataValidator           $inputDataValidator,
-                                private SendEmailService             $sendEmailService,
+                                private InputDataValidatorInterface  $inputDataValidator,
+                                private SendMailServiceInterface     $sendEmailService,
                                 private LoggerService                $loggerService)
     {
     }

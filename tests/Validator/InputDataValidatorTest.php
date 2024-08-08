@@ -1,12 +1,12 @@
 <?php
 
+use App\Exception\InputDataNotValidException;
+use App\Service\Company\CompanyServiceInterface;
+use App\Validator\InputDataValidator;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
-use App\Service\CompanyService;
-use App\Validator\InputDataValidator;
-use App\Exception\InputDataNotValidException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class InputDataValidatorTest extends TestCase
 {
@@ -17,7 +17,7 @@ class InputDataValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->validator = $this->createMock(ValidatorInterface::class);
-        $this->companyService = $this->createMock(CompanyService::class);
+        $this->companyService = $this->createMock(CompanyServiceInterface::class);
 
         $this->inputDataValidator = new InputDataValidator($this->validator, $this->companyService);
     }

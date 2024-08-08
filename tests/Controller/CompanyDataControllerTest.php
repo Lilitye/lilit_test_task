@@ -1,15 +1,14 @@
 <?php
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Service\CompanyHistoricalDataService;
-use App\Service\CompanyService;
-use App\Validator\InputDataValidator;
-use App\Service\SendEmailService;
+
 use App\Controller\CompanyDataController;
 use App\Exception\InputDataNotValidException;
 use App\Logger\LoggerService;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Service\CompanyHistoricalDataService;
+use App\Service\SendMail\SendMailServiceInterface;
+use App\Validator\InputDataValidatorInterface;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class CompanyDataControllerTest extends TestCase
 {
@@ -22,8 +21,8 @@ class CompanyDataControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->companyHistoricalDataService = $this->createMock(CompanyHistoricalDataService::class);
-        $this->inputDataValidator = $this->createMock(InputDataValidator::class);
-        $this->sendEmailService = $this->createMock(SendEmailService::class);
+        $this->inputDataValidator = $this->createMock(InputDataValidatorInterface::class);
+        $this->sendEmailService = $this->createMock(SendMailServiceInterface::class);
         $this->loggerService = $this->createMock(LoggerService::class);
 
         $this->controller = new CompanyDataController(

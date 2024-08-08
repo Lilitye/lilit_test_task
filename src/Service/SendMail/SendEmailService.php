@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\SendMail;
 
-use App\Email\MailerService;
+use App\Email\MailServiceInterface;
+use App\Service\Company\CompanyServiceInterface;
+use App\Service\CompanyHistoricalDataService;
 use RuntimeException;
 
-readonly class SendEmailService
+readonly class SendEmailService implements SendMailServiceInterface
 {
-    public function __construct(private MailerService  $mailerService,
-                                private CompanyService $companyService)
+    public function __construct(private MailServiceInterface  $mailerService,
+                                private CompanyServiceInterface $companyService)
     {
     }
 
@@ -18,9 +20,9 @@ readonly class SendEmailService
             throw new RuntimeException('Environment variable EMAIL_FROM missing');
         }
 
-        $companyData = $this->companyService->getCompanyBySymbol($requestParams["companySymbol"]);
+        $companyName = $this->companyService->getCompanyNameBySymbol($requestParams["companySymbol"]);
 
-        $subject = $companyData["Company Name"] ?? '';
+        $subject = !empty($companyName) ? $companyName : $requestParams["companySymbol"];
         $body = "From {$requestParams['startDate']} to {$requestParams['endDate']}";
         $attachments = [[
             'content' => $this->getCsvContent($historicalData),

@@ -1,9 +1,9 @@
 <?php
 namespace App\Tests\Service;
 
-use App\Email\MailerService;
-use App\Service\SendEmailService;
-use App\Service\CompanyService;
+use App\Email\MailServiceInterface;
+use App\Service\Company\CompanyServiceInterface;
+use App\Service\SendMail\SendEmailService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -15,8 +15,8 @@ class SendEmailServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mailerService = $this->createMock(MailerService::class);
-        $this->companyService = $this->createMock(CompanyService::class);
+        $this->mailerService = $this->createMock(MailServiceInterface::class);
+        $this->companyService = $this->createMock(CompanyServiceInterface::class);
 
         $this->sendEmailService = new SendEmailService($this->mailerService, $this->companyService);
     }
@@ -41,22 +41,20 @@ class SendEmailServiceTest extends TestCase
             ]
         ];
 
-        $companyData = [
-            'Company Name' => 'Google Inc.'
-        ];
+        $companyName = 'Google Inc.';
 
         $_ENV["EMAIL_FROM"] = 'sender@example.com';
 
-        $this->companyService->method('getCompanyBySymbol')
+        $this->companyService->method('getCompanyNameBySymbol')
             ->with($requestParams["companySymbol"])
-            ->willReturn($companyData);
+            ->willReturn($companyName);
 
         $this->mailerService->expects($this->once())
             ->method('sendMail')
             ->with(
                 $_ENV["EMAIL_FROM"],
                 $requestParams['email'],
-                $companyData['Company Name'],
+                $companyName,
                 "From {$requestParams['startDate']} to {$requestParams['endDate']}",
                 $this->callback(function($attachments) {
                     return isset($attachments[0]['content'], $attachments[0]['name'], $attachments[0]['content_type']) &&
