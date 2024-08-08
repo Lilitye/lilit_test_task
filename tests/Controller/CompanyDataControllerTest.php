@@ -2,18 +2,20 @@
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Psr\Log\LoggerInterface;
 use App\Service\CompanyHistoricalDataService;
-use App\Validator\InputDataValidatorInterface;
+use App\Service\CompanyService;
+use App\Validator\InputDataValidator;
 use App\Service\SendEmailService;
 use App\Controller\CompanyDataController;
 use App\Exception\InputDataNotValidException;
 use App\Logger\LoggerService;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CompanyDataControllerTest extends TestCase
 {
     private $companyHistoricalDataService;
     private $inputDataValidator;
+    private $companyService;
     private $sendEmailService;
     private $loggerService;
     private $controller;
@@ -21,7 +23,8 @@ class CompanyDataControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->companyHistoricalDataService = $this->createMock(CompanyHistoricalDataService::class);
-        $this->inputDataValidator = $this->createMock(InputDataValidatorInterface::class);
+        $this->companyService = $this->createMock(CompanyService::class);
+        $this->inputDataValidator = $this->createMock(InputDataValidator::class);
         $this->sendEmailService = $this->createMock(SendEmailService::class);
         $this->loggerService = $this->createMock(LoggerService::class);
 
@@ -35,22 +38,37 @@ class CompanyDataControllerTest extends TestCase
 
     public function testGetCompanyHistoricalDataSuccess()
     {
-        $requestParams = ['company_id' => 1, 'start_date' => '2021-01-01', 'end_date' => '2021-01-31'];
-        $request = new Request([], $requestParams);
-        $historicalData = ['some' => 'data'];
+        $requestParams = [
+            'companySymbol' => 'GOOG',
+            'startDate' => '2024-01-01',
+            'endDate' => '2024-01-02',
+            'email' => 'not valid email'
+        ];
+        $request = new Request($requestParams);
+
+        $historicalData = [
+            [
+                "date" => "2024-01-02",
+                "open" => 139.60000610351562,
+                "high" => 140.61500549316406,
+                "low" => 137.74000549316406,
+                "close" => 139.55999755859375,
+                "volume" => 20071900
+            ]
+        ];
 
         $this->inputDataValidator->expects($this->once())
             ->method('validate')
-            ->with($requestParams);
+            ->with($request->query->all());
 
         $this->companyHistoricalDataService->expects($this->once())
             ->method('getHistoricalData')
-            ->with($requestParams)
+            ->with($request->query->all())
             ->willReturn($historicalData);
 
         $this->sendEmailService->expects($this->once())
             ->method('sendEmail')
-            ->with($requestParams, $historicalData);
+            ->with($request->query->all(), $historicalData);
 
         $response = $this->controller->getCompanyHistoricalData($request);
 
@@ -64,9 +82,17 @@ class CompanyDataControllerTest extends TestCase
 
     public function testGetCompanyHistoricalDataValidationError()
     {
-        $requestParams = ['company_id' => 1, 'start_date' => 'invalid-date', 'end_date' => '2021-01-31'];
+        $requestParams = [
+            'companySymbol' => 'GOOG',
+            'startDate' => '2024-01-01',
+            'endDate' => '2024-01-02',
+            'email' => 'not valid email'
+        ];
+
         $request = new Request([], $requestParams);
-        $errors = ['start_date' => 'Invalid date format'];
+        $errors = [
+            "\"not valid email\" is not a valid email address"
+        ];
 
         $this->inputDataValidator->expects($this->once())
             ->method('validate')
@@ -85,7 +111,13 @@ class CompanyDataControllerTest extends TestCase
 
     public function testGetCompanyHistoricalDataInternalError()
     {
-        $requestParams = ['company_id' => 1, 'start_date' => '2021-01-01', 'end_date' => '2021-01-31'];
+        $requestParams = [
+            'companySymbol' => 'GOOG',
+            'startDate' => '2021-01-01',
+            'endDate' => '2021-01-31',
+            'email' => 'test@test.com'
+        ];
+
         $request = new Request([], $requestParams);
 
         $this->inputDataValidator->expects($this->once())
@@ -95,7 +127,7 @@ class CompanyDataControllerTest extends TestCase
         $this->companyHistoricalDataService->expects($this->once())
             ->method('getHistoricalData')
             ->with($requestParams)
-            ->willThrowException(new \Exception('Some error'));
+            ->willThrowException(new \RuntimeException('Some error'));
 
         $this->loggerService->expects($this->once())
             ->method('log')

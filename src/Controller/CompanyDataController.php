@@ -6,7 +6,7 @@ use App\Exception\InputDataNotValidException;
 use App\Logger\LoggerService;
 use App\Service\CompanyHistoricalDataService;
 use App\Service\SendEmailService;
-use App\Validator\InputDataValidatorInterface;
+use App\Validator\InputDataValidator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,7 @@ use OpenApi\Attributes as OA;
 readonly class CompanyDataController
 {
     public function __construct(private CompanyHistoricalDataService $companyHistoricalDataService,
-                                private InputDataValidatorInterface  $inputDataValidator,
+                                private InputDataValidator           $inputDataValidator,
                                 private SendEmailService             $sendEmailService,
                                 private LoggerService                $loggerService)
     {
@@ -122,7 +122,8 @@ readonly class CompanyDataController
 
             return new JsonResponse([
                 'status' => true,
-                'error' => "Internal Error"
+               // 'error' => "Internal Error",
+                'error' => $exception->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
