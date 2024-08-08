@@ -11,7 +11,10 @@ Installation
 2. Create Your .env.local File and add Api key
 
  ```sh
-   X_RAPID_API_KEY=your_api_key
+    X_RAPID_API_KEY=your_api_key
+
+    MAILER_DSN=mailer_dsn
+
 ```
 3. Build and start the services:
     ```sh
