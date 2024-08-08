@@ -5,7 +5,7 @@ Installation
 ------------
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/yourproject.git
+    git clone https://github.com/Lilitye/lilit_task.git
     cd lilit_task
     ```
 2. Create Your .env.local File and add Api key
